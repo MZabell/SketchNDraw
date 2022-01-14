@@ -1,16 +1,11 @@
 package com.company;
 
+import javax.swing.JButton;
 import javax.swing.JPanel;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.MouseInfo;
-import java.awt.RenderingHints;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Path2D;
-import java.nio.file.Path;
 
 public class GraphicsPanel extends JPanel {
 
@@ -21,7 +16,8 @@ public class GraphicsPanel extends JPanel {
         c = new GridBagConstraints();
         c.gridx = 0;
         c.gridy = 0;
-        createMenus();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        createMenus(canvas);
         c.fill = GridBagConstraints.BOTH;
         c.gridx = 1;
         c.gridy = 1;
@@ -30,18 +26,29 @@ public class GraphicsPanel extends JPanel {
         add(canvas, c);
     }
 
-    private void createMenus() {
-        for (int i = 0; i < 20; i++) {
-            add(new MenuButton(), c);
+    private void createMenus(Canvas canvas) {
+        var toolbarTop = new JToolBar();
+        var toolbarSide = new JToolBar();
+        toolbarSide.setOrientation(SwingConstants.VERTICAL);
+        for (ButtonFunction buttonFunction : canvas.getButtonFunctionsTop()) {
+            JButton menuButton = new JButton();
+            menuButton.addActionListener(buttonFunction.actionListener);
+            menuButton.setToolTipText(buttonFunction.toolTip);
+            menuButton.setIcon(buttonFunction.imageIcon);
+            toolbarTop.add(menuButton);
+            add(toolbarTop, c);
             c.gridx++;
-            i++;
         }
         c.gridx = 0;
         c.gridy = 1;
-        for (int h = 0; h < 20; h++) {
-            add(new MenuButton(), c);
+        for (ButtonFunction buttonFunction : canvas.getButtonFunctionsSide()) {
+            JButton menuButton = new JButton();
+            menuButton.addActionListener(buttonFunction.actionListener);
+            menuButton.setToolTipText(buttonFunction.toolTip);
+            menuButton.setText(buttonFunction.toolTip);
+            toolbarSide.add(menuButton);
+            add(toolbarSide, c);
             c.gridy++;
-            h++;
         }
     }
 }
