@@ -1,8 +1,16 @@
 package com.company;
 
 import javax.swing.JPanel;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.MouseInfo;
+import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Path2D;
+import java.nio.file.Path;
 
 public class GraphicsPanel extends JPanel {
 

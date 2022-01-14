@@ -3,8 +3,11 @@ package com.company;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import java.awt.MouseInfo;
+import java.awt.Shape;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Path2D;
+import java.nio.file.Path;
 
 public class SketchNDraw extends JFrame {
 
@@ -20,13 +23,6 @@ public class SketchNDraw extends JFrame {
         getContentPane().add(graphicsPanel);
         pack();
 
-        canvas.addMouseMotionListener(new MouseAdapter() {
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                super.mouseDragged(e);
-                canvas.getGraphics().fillOval(MouseInfo.getPointerInfo().getLocation().x - 68, MouseInfo.getPointerInfo().getLocation().y - 58, 5, 5);
-            }
-        });
     }
 
     public static void main(String[] args) {
