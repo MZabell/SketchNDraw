@@ -18,10 +18,8 @@ import java.util.Stack;
 public class Canvas extends JPanel {
 
     Path2D path = new Path2D.Double();
-    List<Path2D> paths = new ArrayList<>();
     private final List<ButtonFunction> buttonFunctionsSide = new ArrayList<>() {{
         add(new ButtonFunction("Clear", null, e -> {
-            paths.clear();
             repaint();
         }));
         add(new ButtonFunction("Undo", null, e -> {
@@ -43,26 +41,23 @@ public class Canvas extends JPanel {
 
         }));
     }};
-    Stack undoStack = new Stack();
+    Stack pathStack = new Stack();
     Stack redoStack = new Stack();
     private final List<ButtonFunction> buttonFunctionsTop = new ArrayList<>() {{
         add(new ButtonFunction("Clear", new ImageIcon("src/Icons/Clear.png"), e -> {
-            paths.clear();
-            undoStack.clear();
+            pathStack.clear();
             redoStack.clear();
             repaint();
         }));
         add(new ButtonFunction("Undo", new ImageIcon("src/Icons/Undo.png"), e -> {
-            if (!undoStack.empty()) {
-                redoStack.push(undoStack.pop());
-                paths.remove(paths.size() - 1);
+            if (!pathStack.empty()) {
+                redoStack.push(pathStack.pop());
                 repaint();
             }
         }));
         add(new ButtonFunction("Redo", new ImageIcon("src/Icons/Redo.png"), e -> {
             if (!redoStack.empty()) {
-                paths.add((Path2D) redoStack.peek());
-                undoStack.push(redoStack.pop());
+                pathStack.push(redoStack.pop());
                 repaint();
             }
         }));
@@ -105,8 +100,7 @@ public class Canvas extends JPanel {
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
                 if (path != null) {
-                    paths.add(path);
-                    undoStack.push(path);
+                    pathStack.push(path);
                     path = null;
                 }
                 repaint();
@@ -133,7 +127,7 @@ public class Canvas extends JPanel {
         if (path != null)
             g2d.draw(path);
 
-        for (Path2D p : paths)
-            g2d.draw(p);
+        for (Object p : pathStack)
+            g2d.draw((Path2D) p);
     }
 }
