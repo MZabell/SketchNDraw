@@ -1,7 +1,10 @@
 package com.company;
 
 import javax.swing.ImageIcon;
+import javax.swing.JColorChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -17,10 +20,9 @@ import java.util.Stack;
 
 public class Canvas extends JPanel {
 
-    Path2D path = new Path2D.Double();
     private final List<ButtonFunction> buttonFunctionsSide = new ArrayList<>() {{
         add(new ButtonFunction("Clear", null, e -> {
-            repaint();
+
         }));
         add(new ButtonFunction("Undo", null, e -> {
 
@@ -41,12 +43,17 @@ public class Canvas extends JPanel {
 
         }));
     }};
+    Path2D path = new Path2D.Double();
     Stack pathStack = new Stack();
     Stack redoStack = new Stack();
+    Color strokeColor = Color.BLACK;
+    float strokeWidth = 1;
+    private final List<StrokeProperties> strokeProperties = new ArrayList<>();
     private final List<ButtonFunction> buttonFunctionsTop = new ArrayList<>() {{
         add(new ButtonFunction("Clear", new ImageIcon("src/Icons/Clear.png"), e -> {
             pathStack.clear();
             redoStack.clear();
+            strokeProperties.clear();
             repaint();
         }));
         add(new ButtonFunction("Undo", new ImageIcon("src/Icons/Undo.png"), e -> {
@@ -61,13 +68,9 @@ public class Canvas extends JPanel {
                 repaint();
             }
         }));
-        add(new ButtonFunction("sdaasd", null, e -> {
-
-        }));
-        add(new ButtonFunction("sdaasd", null, e -> {
-
-        }));
-        add(new ButtonFunction("sdaasd", null, e -> {
+        add(new ButtonFunction("Color Chooser", new ImageIcon("src/Icons/ColorChooser.png"), e -> strokeColor = JColorChooser.showDialog(Canvas.this, "Choose your color", Color.WHITE)));
+        add(new ButtonFunction("Stroke Width", new ImageIcon("src/Icons/StrokeWidth.png"), e -> strokeWidth = Float.parseFloat(JOptionPane.showInputDialog(Canvas.this, "Enter stroke width"))));
+        add(new ButtonFunction("Fill", new ImageIcon("src/Icons/Fill.png"), e -> {
 
         }));
         add(new ButtonFunction("sdaasd", null, e -> {
@@ -100,6 +103,7 @@ public class Canvas extends JPanel {
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
                 if (path != null) {
+                    strokeProperties.add(new StrokeProperties(path, strokeColor, strokeWidth));
                     pathStack.push(path);
                     path = null;
                 }
@@ -124,10 +128,20 @@ public class Canvas extends JPanel {
                 RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHints(rh);
-        if (path != null)
-            g2d.draw(path);
 
-        for (Object p : pathStack)
+        int index = 0;
+
+        for (Object p : pathStack) {
+            g2d.setStroke(new BasicStroke(strokeProperties.get(index).getWidth()));
+            g2d.setColor(strokeProperties.get(index).getColor());
             g2d.draw((Path2D) p);
+            index++;
+        }
+
+        if (path != null) {
+            g2d.setStroke(new BasicStroke(strokeWidth));
+            g2d.setColor(strokeColor);
+            g2d.draw(path);
+        }
     }
 }
