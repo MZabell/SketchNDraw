@@ -6,6 +6,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -14,40 +15,19 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-public class Canvas extends JPanel {
+public class Canvas extends JPanel implements Serializable {
 
-    private final List<ButtonFunction> buttonFunctionsSide = new ArrayList<>() {{
-        add(new ButtonFunction("Clear", null, e -> {
-
-        }));
-        add(new ButtonFunction("Undo", null, e -> {
-
-        }));
-        add(new ButtonFunction("sdaasd", null, e -> {
-
-        }));
-        add(new ButtonFunction("sdaasd", null, e -> {
-
-        }));
-        add(new ButtonFunction("sdaasd", null, e -> {
-
-        }));
-        add(new ButtonFunction("sdaasd", null, e -> {
-
-        }));
-        add(new ButtonFunction("sdaasd", null, e -> {
-
-        }));
-    }};
     Path2D path = new Path2D.Double();
     Stack pathStack = new Stack();
     Stack redoStack = new Stack();
     Color strokeColor = Color.BLACK;
     float strokeWidth = 1;
+    int strokeMode = 0;
     private final List<StrokeProperties> strokeProperties = new ArrayList<>();
     private final List<ButtonFunction> buttonFunctionsTop = new ArrayList<>() {{
         add(new ButtonFunction("Clear", new ImageIcon("src/Icons/Clear.png"), e -> {
@@ -71,16 +51,19 @@ public class Canvas extends JPanel {
         add(new ButtonFunction("Color Chooser", new ImageIcon("src/Icons/ColorChooser.png"), e -> strokeColor = JColorChooser.showDialog(Canvas.this, "Choose your color", Color.WHITE)));
         add(new ButtonFunction("Stroke Width", new ImageIcon("src/Icons/StrokeWidth.png"), e -> strokeWidth = Float.parseFloat(JOptionPane.showInputDialog(Canvas.this, "Enter stroke width"))));
         add(new ButtonFunction("Fill", new ImageIcon("src/Icons/Fill.png"), e -> {
-
+            if (strokeMode == 0)
+                strokeMode = 1;
+            else strokeMode = 0;
         }));
-        add(new ButtonFunction("sdaasd", null, e -> {
-
+        add(new ButtonFunction("Eraser", new ImageIcon("src/Icons/Eraser.png"), e -> {
+            strokeColor = getBackground();
         }));
     }};
     private Point2D anchor;
 
     public Canvas() {
         setBackground(Color.WHITE);
+        setPreferredSize(new Dimension(1250,500));
         addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
@@ -96,6 +79,15 @@ public class Canvas extends JPanel {
                 anchor = (Point2D) e.getPoint().clone();
                 path = new GeneralPath();
                 path.moveTo(anchor.getX(), anchor.getY());
+
+                if (strokeMode == 1) {
+                for (StrokeProperties p : strokeProperties) {
+                    if (p.getPath().contains(e.getX(), e.getY())) {
+                        p.setColor(strokeColor);
+                    }
+                    }
+                }
+
                 repaint();
             }
 
@@ -114,10 +106,6 @@ public class Canvas extends JPanel {
 
     public List<ButtonFunction> getButtonFunctionsTop() {
         return buttonFunctionsTop;
-    }
-
-    public List<ButtonFunction> getButtonFunctionsSide() {
-        return buttonFunctionsSide;
     }
 
     protected void paintComponent(Graphics g) {
@@ -145,3 +133,4 @@ public class Canvas extends JPanel {
         }
     }
 }
+

@@ -39,16 +39,5 @@ public class GraphicsPanel extends JPanel {
             add(toolbarTop, c);
             c.gridx++;
         }
-        c.gridx = 0;
-        c.gridy = 1;
-        for (ButtonFunction buttonFunction : canvas.getButtonFunctionsSide()) {
-            JButton menuButton = new JButton();
-            menuButton.addActionListener(buttonFunction.actionListener);
-            menuButton.setToolTipText(buttonFunction.toolTip);
-            menuButton.setText(buttonFunction.toolTip);
-            toolbarSide.add(menuButton);
-            add(toolbarSide, c);
-            c.gridy++;
-        }
     }
 }
