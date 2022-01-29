@@ -15,25 +15,27 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-public class Canvas extends JPanel implements Serializable {
+public class Canvas extends JPanel {
 
+    private final List<StrokeProperties> strokeProperties = new ArrayList<>();
     Path2D path = new Path2D.Double();
     Stack pathStack = new Stack();
     Stack redoStack = new Stack();
     Color strokeColor = Color.BLACK;
     float strokeWidth = 1;
     int strokeMode = 0;
-    private final List<StrokeProperties> strokeProperties = new ArrayList<>();
+    SketchNDraw sketchNDraw;
     private final List<ButtonFunction> buttonFunctionsTop = new ArrayList<>() {{
         add(new ButtonFunction("Clear", new ImageIcon("src/Icons/Clear.png"), e -> {
             pathStack.clear();
             redoStack.clear();
             strokeProperties.clear();
+            sketchNDraw.setOpenFile(null);
+            setBackground(Color.WHITE);
             repaint();
         }));
         add(new ButtonFunction("Undo", new ImageIcon("src/Icons/Undo.png"), e -> {
@@ -55,20 +57,21 @@ public class Canvas extends JPanel implements Serializable {
                 strokeMode = 1;
             else strokeMode = 0;
         }));
-        add(new ButtonFunction("Eraser", new ImageIcon("src/Icons/Eraser.png"), e -> {
-            strokeColor = getBackground();
-        }));
+        add(new ButtonFunction("Eraser", new ImageIcon("src/Icons/Eraser.png"), e -> strokeColor = getBackground()));
     }};
     private Point2D anchor;
 
-    public Canvas() {
+    public Canvas(SketchNDraw sketchNDraw) {
+        this.sketchNDraw = sketchNDraw;
         setBackground(Color.WHITE);
-        setPreferredSize(new Dimension(1250,500));
+        setPreferredSize(new Dimension(1250, 500));
         addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
                 super.mouseDragged(e);
-                path.lineTo(e.getX(), e.getY());
+                if (strokeMode == 0) {
+                    path.lineTo(e.getX(), e.getY());
+                }
                 repaint();
             }
         });
@@ -76,15 +79,17 @@ public class Canvas extends JPanel implements Serializable {
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
-                anchor = (Point2D) e.getPoint().clone();
-                path = new GeneralPath();
-                path.moveTo(anchor.getX(), anchor.getY());
+                if (strokeMode == 0) {
+                    anchor = (Point2D) e.getPoint().clone();
+                    path = new GeneralPath();
+                    path.moveTo(anchor.getX(), anchor.getY());
+                }
 
                 if (strokeMode == 1) {
-                for (StrokeProperties p : strokeProperties) {
-                    if (p.getPath().contains(e.getX(), e.getY())) {
-                        p.setColor(strokeColor);
-                    }
+                    for (StrokeProperties p : strokeProperties) {
+                        if (p.getPath().contains(e.getX(), e.getY())) {
+                            p.setColor(strokeColor);
+                        } else setBackground(strokeColor);
                     }
                 }
 
@@ -94,10 +99,12 @@ public class Canvas extends JPanel implements Serializable {
             @Override
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
-                if (path != null) {
-                    strokeProperties.add(new StrokeProperties(path, strokeColor, strokeWidth));
-                    pathStack.push(path);
-                    path = null;
+                if (strokeMode == 0) {
+                    if (path != null) {
+                        strokeProperties.add(new StrokeProperties(path, strokeColor, strokeWidth));
+                        pathStack.push(path);
+                        path = null;
+                    }
                 }
                 repaint();
             }
@@ -116,6 +123,10 @@ public class Canvas extends JPanel implements Serializable {
                 RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHints(rh);
+
+        if (sketchNDraw.getOpenFile() != null) {
+            g2d.drawImage(FileSerialization.openPNG(sketchNDraw.getOpenFile(), this), 0, 0, this);
+        }
 
         int index = 0;
 
