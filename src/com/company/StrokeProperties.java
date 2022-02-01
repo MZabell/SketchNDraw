@@ -8,6 +8,7 @@ public class StrokeProperties {
     private final Path2D path;
     private final float width;
     private Color color;
+
     public StrokeProperties(Path2D path, Color color, float width) {
         this.path = path;
         this.color = color;

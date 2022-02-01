@@ -23,8 +23,8 @@ public class Canvas extends JPanel {
 
     private final List<StrokeProperties> strokeProperties = new ArrayList<>();
     Path2D path = new Path2D.Double();
-    Stack pathStack = new Stack();
-    Stack redoStack = new Stack();
+    Stack<Path2D> pathStack = new Stack<>();
+    Stack<Path2D> redoStack = new Stack<>();
     Color strokeColor = Color.BLACK;
     float strokeWidth = 1;
     int strokeMode = 0;
@@ -53,8 +53,13 @@ public class Canvas extends JPanel {
         add(new ButtonFunction("Color Chooser", new ImageIcon("src/Icons/ColorChooser.png"), e -> strokeColor = JColorChooser.showDialog(Canvas.this, "Choose your color", Color.WHITE)));
         add(new ButtonFunction("Stroke Width", new ImageIcon("src/Icons/StrokeWidth.png"), e -> strokeWidth = Float.parseFloat(JOptionPane.showInputDialog(Canvas.this, "Enter stroke width"))));
         add(new ButtonFunction("Fill", new ImageIcon("src/Icons/Fill.png"), e -> {
-            if (strokeMode == 0)
+            if (strokeMode != 1)
                 strokeMode = 1;
+            else strokeMode = 0;
+        }));
+        add(new ButtonFunction("Fill all of Color", new ImageIcon("src/Icons/FillAll.png"), e -> {
+            if (strokeMode != 2)
+                strokeMode = 2;
             else strokeMode = 0;
         }));
         add(new ButtonFunction("Eraser", new ImageIcon("src/Icons/Eraser.png"), e -> strokeColor = getBackground()));
@@ -90,6 +95,20 @@ public class Canvas extends JPanel {
                         if (p.getPath().contains(e.getX(), e.getY())) {
                             p.setColor(strokeColor);
                         } else setBackground(strokeColor);
+                    }
+                }
+
+                if (strokeMode == 2) {
+                    Color sameColor;
+                    for (StrokeProperties p : strokeProperties) {
+                        if (p.getPath().contains(e.getX(), e.getY())) {
+                            sameColor = p.getColor();
+                            for (StrokeProperties h : strokeProperties) {
+                                if (h.getColor() == sameColor) {
+                                    h.setColor(strokeColor);
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -130,10 +149,10 @@ public class Canvas extends JPanel {
 
         int index = 0;
 
-        for (Object p : pathStack) {
+        for (Path2D p : pathStack) {
             g2d.setStroke(new BasicStroke(strokeProperties.get(index).getWidth()));
             g2d.setColor(strokeProperties.get(index).getColor());
-            g2d.draw((Path2D) p);
+            g2d.draw(p);
             index++;
         }
 

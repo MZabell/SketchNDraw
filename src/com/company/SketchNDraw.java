@@ -12,11 +12,10 @@ import java.io.File;
 public class SketchNDraw extends JFrame {
 
     public final Canvas canvas = new Canvas(this);
-    private final GraphicsPanel graphicsPanel;
     private File openFile;
 
     public SketchNDraw() {
-        graphicsPanel = new GraphicsPanel(canvas);
+        GraphicsPanel graphicsPanel = new GraphicsPanel(canvas);
 
         setTitle("SketchNDraw");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -24,14 +23,8 @@ public class SketchNDraw extends JFrame {
         getContentPane().add(graphicsPanel);
         JMenuBar menuBar = new JMenuBar();
         JMenu menu = new JMenu("File");
-        JMenuItem menuItem1 = new JMenuItem("Save Project");
-        JMenuItem menuItem2 = new JMenuItem("Save Project and Quit");
         JMenuItem menuItem3 = new JMenuItem("Export as PNG");
         JMenuItem menuItem4 = new JMenuItem("Open PNG in Project");
-        menuItem1.addActionListener(e -> {
-            FileSerialization.saveProject(canvas);
-            System.out.println("File Saved");
-        });
         menuItem3.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setFileFilter(new FileNameExtensionFilter("PNG", "png"));
@@ -57,8 +50,6 @@ public class SketchNDraw extends JFrame {
                 canvas.repaint();
             }
         });
-        menu.add(menuItem1);
-        menu.add(menuItem2);
         menu.add(menuItem3);
         menu.add(menuItem4);
         menuBar.add(menu);
